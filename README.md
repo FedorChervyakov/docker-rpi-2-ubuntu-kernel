@@ -1,6 +1,6 @@
 # docker-rpi-ubuntu-kernel
 
-Image to cross-build the Ubuntu kernel for the Raspberry Pi 4. The image contains all the needed tools here: https://hub.docker.com/repository/docker/carlonluca/docker-rpi-ubuntu-kernel.
+Image to cross-build the Ubuntu kernel for the Raspberry Pi 2. See this https://forums.raspberrypi.com/viewtopic.php?f=131&t=284556&p=1734458#p1734458
 
 ## Usage
 
@@ -9,16 +9,27 @@ From the host:
 ```
 mkdir workspace
 cd workspace
-git clone https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/hirsute src
-[apply needed patches]
+git clone https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/focal src
 ```
 
-Now you can build the kernel by running the script in the container:
+Now you can build and configure the kernel in the container:
 
 ```
-docker run --rm -it --name builder -v $PWD/workspace:/workspace \
-    -v $PWD/build.sh:/build.sh carlonluca/docker-rpi-ubuntu-kernel:focal \
-    /build.sh
+docker build -t rpi_kernel .
+docker run --rm -it --name builder -v $PWD/workspace:/workspace rpi_kernel:latest /bin/bash
+```
+
+Then, in the container:
+
+```
+cd /workspace/src
+mkdir -p /workspace/out
+export CC=arm-linux-gnueabihf-gcc
+export $(dpkg-architecture -aarmhf); export CROSS_COMPILE=arm-linux-gnueabihf-
+fakeroot debian/rules clean
+fakeroot debian/rules editconfigs
+fakeroot debian/rules binary-headers binary binary-perarch skipmodule=true skipabi=true
+mv ../*.deb ../out/
 ```
 
 in workspace/out you should get the packages to install in your pi:
