@@ -7,9 +7,9 @@ RUN \
     export DEBIAN_FRONTEND="noninteractive" && \
     apt-get -y update && \
     apt-get -y install fakeroot build-essential kexec-tools \
-    kernel-wedge gcc-aarch64-linux-gnu libncurses5 libncurses5-dev libelf-dev asciidoc binutils-dev && \
+    kernel-wedge gcc-arm-linux-gnueabihf libncurses5 libncurses5-dev libelf-dev asciidoc binutils-dev && \
     apt-get -y build-dep linux && \
-    dpkg --add-architecture arm64
+    dpkg --add-architecture armhf
 RUN \
     apt-get -y autoremove && \
     apt-get -y autoclean && \
